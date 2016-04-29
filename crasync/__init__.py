@@ -1,33 +1,28 @@
+import asyncio
 from multimple import multimple
 
 __version__ = '0.0'
 
 
-class Crasync(object):
-    def __get__(self, owner, klass=None):
-        pass
+def crasync(arg):
+    if isinstance(arg, type):
+        klass = multimple(arg)
+        setattr(klass, 'async', klass.multimple('async'))
+        setattr(klass, 'sync', klass.multimple('sync'))
 
-    @classmethod
-    def decorator(cls, arg):
-        if isinstance(arg, type):
-            return cls.class_decorator(arg)
-        else:
-            return cls.func_decorator(arg)
+        return klass
+    else:
+        async_func = arg
 
-    @classmethod
-    def func_decorator(cls, async_func):
         # TODO: check function aync-ness
-        sync_func = cls.make_sync(async_func)
+        def sync_func(*args, **kwargs):
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            future = async_func(*args, **kwargs)
+
+            return loop.run_until_complete(future)
 
         imo = multimple('async')(async_func)
         imo.multimple('sync')(sync_func)
 
         return imo
-
-    @classmethod
-    def class_decorator(cls, klass):
-        return multimple(klass)
-
-    @classmethod
-    def make_sync(cls, async_func):
-        pass

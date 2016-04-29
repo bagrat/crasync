@@ -20,7 +20,7 @@ class SomeCarsyncClass(object):
 class CrasyncTest(TestCase):
     def setUp(self):
         self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(None)
+        asyncio.set_event_loop(self.loop)
 
     def test_crasync(self):
         Async1 = SomeCarsyncClass
